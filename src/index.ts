@@ -1,5 +1,3 @@
-
-
 type params = {
     // deno-lint-ignore no-explicit-any
     [x: string]: any
@@ -89,7 +87,7 @@ class Aquarium {
      */
     async signin(email: string, password: string) {
         // deno-lint-ignore no-explicit-any
-        const me = await this.post('signin', undefined, {email, password}) as Record<string, any>
+        const me = await this.post('signin', {email, password}) as Record<string, any>
         if (me.token) {
             this.token = me.token
             delete me.token
@@ -108,11 +106,11 @@ class Aquarium {
     /**
      * Send a POST request to Aquarium server
      * @param {string} url - Base URL for the API endpoint (ex: `users/me`)
-     * @param {params} [params] - URL search parameters
      * @param {body} [body] - URL body object
+     * @param {params} [params] - URL search parameters
      * @returns Aquarium response
      */
-    post(url: string, params?: params, body?: body) {
+    post(url: string, body?: body, params?: params,) {
         return this.aquarium('POST', url, params, body)
     }
 
@@ -129,33 +127,33 @@ class Aquarium {
     /**
      * Send a PATCH request to Aquarium server
      * @param {string} url - Base URL for the API endpoint (ex: `users/me`)
-     * @param {params} [params] - URL search parameters
      * @param {body} [body] - URL body object
+     * @param {params} [params] - URL search parameters
      * @returns Aquarium response
      */
-    patch(url: string, params?: params, body?: body) {
+    patch(url: string, body?: body, params?: params) {
         return this.aquarium('PATCH', url, params, body)
     }
 
     /**
      * Send a PUT request to Aquarium server
      * @param {string} url - Base URL for the API endpoint (ex: `users/me`)
-     * @param {params} [params] - URL search parameters
      * @param {body} [body] - URL body object
+     * @param {params} [params] - URL search parameters
      * @returns Aquarium response
      */
-    put(url: string, params?: params, body?: body) {
+    put(url: string, body?: body, params?: params) {
         return this.aquarium('PUT', url, params, body)
     }
 
     /**
      * Send a DELETE request to Aquarium server
      * @param {string} url - Base URL for the API endpoint (ex: `users/me`)
-     * @param {params} [params] - URL search parameters
      * @param {body} [body] - URL body object
+     * @param {params} [params] - URL search parameters
      * @returns Aquarium response
      */
-    delete(url: string, params?: params, body?: body) {
+    delete(url: string, body?: body, params?: params) {
         return this.aquarium('DELETE', url, params, body)
     }
 }
