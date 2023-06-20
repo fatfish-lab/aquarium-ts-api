@@ -13,9 +13,6 @@ await build({
     entryPoints: ["./src/index.ts"],
     outDir: "./npm",
     typeCheck: false,
-    test: false,
-    declaration: "inline",
-    scriptModule: false,
     compilerOptions: {
         lib: ['DOM']
     },
