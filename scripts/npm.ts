@@ -1,6 +1,13 @@
 import { build, emptyDir } from "https://deno.land/x/dnt@0.37.0/mod.ts";
 
+const newTag = new Deno.Command('git', {
+    args: ['tag', '-a', `${Deno.args[0]}`, '-m', `v${Deno.args[0]}`]})
+newTag.outputSync()
+
 await emptyDir("./npm");
+
+Deno.copyFileSync("LICENSE", "npm/LICENSE")
+Deno.copyFileSync("README.md", "npm/README.md")
 
 await build({
     entryPoints: ["./src/index.ts"],
@@ -28,9 +35,5 @@ await build({
         publishConfig: {
             "registry": "https://npm.pkg.github.com"
         },
-    },
-    postBuild() {
-        Deno.copyFileSync("LICENSE", "npm/LICENSE");
-        Deno.copyFileSync("README.md", "npm/README.md");
-    },
+    }
 });
