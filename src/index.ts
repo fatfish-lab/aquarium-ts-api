@@ -52,7 +52,8 @@ class Aquarium {
 
         const request: RequestInit = {
             method,
-            headers
+            headers,
+            credentials: 'include'
         }
 
         if (body == null) {
