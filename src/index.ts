@@ -1,7 +1,10 @@
 
 
-type body = Record<string, string>
-type params = Record<string, string>
+type params = {
+    // deno-lint-ignore no-explicit-any
+    [x: string]: any
+}
+type body = params | BodyInit
 /**
  * Aquarium API class to regroup all API low level functions and authentication token
  */
@@ -85,7 +88,7 @@ class Aquarium {
      */
     async signin(email: string, password: string) {
         // deno-lint-ignore no-explicit-any
-        const me = await this.post('signin', undefined, { email, password }) as Record<string, any>
+        const me = await this.post('signin', undefined, {email, password}) as Record<string, any>
         if (me.token) {
             this.token = me.token
             delete me.token
