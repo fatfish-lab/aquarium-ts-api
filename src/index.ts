@@ -87,12 +87,28 @@ class Aquarium {
      */
     async signin(email: string, password: string) {
         // deno-lint-ignore no-explicit-any
-        const me = await this.post('signin', {email, password}) as Record<string, any>
+        const me = await this.post('signin', { email, password }) as Record<string, any>
         if (me.token) {
             this.token = me.token
             delete me.token
         }
         return me
+    }
+
+    /**
+     * Signin a bot to Aquarium and store the token in the class instance
+     * @param {string} _key - Bot's _key
+     * @param {string} secret - Bot's secret
+     * @returns
+     */
+    async signinBot(_key: string, secret: string) {
+        // deno-lint-ignore no-explicit-any
+        const bot = await this.post(`bots/${_key}/signin`, { secret }) as Record<string, any>
+        if (bot.token) {
+            this.token = bot.token
+            delete bot.token
+        }
+        return bot
     }
 
     /**
