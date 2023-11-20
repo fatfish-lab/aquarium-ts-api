@@ -65,15 +65,21 @@ class Aquarium {
 
         return new Promise((resolve, reject) => {
             fetch(resource.toString(), request).then(async response => {
-                if (response.status < 300) {
+                if (response.ok) {
                     const body = await response.json()
                     resolve(body)
                 } else {
-                    const body = await response.text()
-                    reject(body)
+                    let body
+                    try {
+                        body = await response.text()
+                        reject(new Error(body))
+                        // body = await response.json()
+                        // reject(new Error(body.error))
+                    } catch {
+                        reject(new Error('Error during fetch'))
+                    }
                 }
             }).catch(e => {
-                console.log('Error')
                 reject(e)
             })
         })
