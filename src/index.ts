@@ -8,13 +8,17 @@ type body = params | BodyInit;
  * Aquarium API class to regroup all API low level functions and authentication token
  */
 class Aquarium {
+  /** API version */
   apiVersion: string;
+  /** API origin URL */
   apiUrl: string;
+  /** API base URL including the API version */
   url: URL;
+  /** API token used to authenticate requests */
   token: string | undefined;
-  domain: string | undefined;
+  /** API Aquarium domain */
+  domain?: string | undefined;
   /**
-   * @constructs
    * @param {string} url - Your Aquarium Studio url instance with protocol (ex: `https://`) and port if needed
    * @param {string} [token] - Your personal access token or a saved token
    * @param {string} [domain] - Specify the domain used for unauthenticated requests. Mainly for Aquarium Fatfish Lab dev or local Aquarium server without DNS.
