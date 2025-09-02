@@ -7,9 +7,16 @@
   "tasks": {
     "publish:npm": "deno run -A scripts/npm.ts && cd npm && npm publish",
     "publish:jsr": "deno publish",
-    "publish": "deno task 'publish:*'"
+    "publish": "deno task 'publish:*'",
+    "check": "deno check --doc && deno fmt"
   },
+  "exclude": [
+    "./npm",
+    "./docs"
+  ],
   "fmt": {
-    "exclude": ["*.md"]
+    "exclude": [
+      "*.md"
+    ]
   }
 }
