@@ -8,5 +8,8 @@
     "publish:npm": "deno run -A scripts/npm.ts && cd npm && npm publish",
     "publish:jsr": "deno publish",
     "publish": "deno task 'publish:*'"
+  },
+  "fmt": {
+    "exclude": ["*.md"]
   }
 }

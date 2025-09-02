@@ -1,18 +1,18 @@
-import type { User, Bot } from './types/item.ts'
+import type { Bot, User } from "./types/item.ts";
 type params = {
   // deno-lint-ignore no-explicit-any
-  [x: string]: any
-}
-type body = params | BodyInit
+  [x: string]: any;
+};
+type body = params | BodyInit;
 /**
  * Aquarium API class to regroup all API low level functions and authentication token
  */
 class Aquarium {
-  apiVersion: string
-  apiUrl: string
-  url: URL
-  token: string | undefined
-  domain: string | undefined
+  apiVersion: string;
+  apiUrl: string;
+  url: URL;
+  token: string | undefined;
+  domain: string | undefined;
   /**
    * @constructs
    * @param {string} url - Your Aquarium Studio url instance with protocol (ex: `https://`) and port if needed
@@ -20,12 +20,12 @@ class Aquarium {
    * @param {string} [domain] - Specify the domain used for unauthenticated requests. Mainly for Aquarium Fatfish Lab dev or local Aquarium server without DNS.
    */
   constructor(url: string, token?: string | null, domain?: string | null) {
-    this.apiUrl = url
-    this.apiVersion = 'v1'
-    this.url = new URL(`/${this.apiVersion}/`, this.apiUrl)
+    this.apiUrl = url;
+    this.apiVersion = "v1";
+    this.url = new URL(`/${this.apiVersion}/`, this.apiUrl);
 
-    if (domain) this.domain = domain
-    if (token) this.token = token
+    if (domain) this.domain = domain;
+    if (token) this.token = token;
   }
 
   /**
@@ -36,54 +36,59 @@ class Aquarium {
    * @param {body} [body] - URL body object
    * @returns Aquarium response
    */
-  aquarium<T>(method: string, url: string, params?: params | undefined, body?: body | undefined): Promise<T> {
-    const resource = new URL(this.url + url)
+  aquarium<T>(
+    method: string,
+    url: string,
+    params?: params | undefined,
+    body?: body | undefined,
+  ): Promise<T> {
+    const resource = new URL(this.url + url);
 
     if (params != null) {
-      Object.keys(params).forEach(name => {
-        resource.searchParams.append(name, params[name])
-      })
+      Object.keys(params).forEach((name) => {
+        resource.searchParams.append(name, params[name]);
+      });
     }
 
-    const headers = new Headers()
-    if (this.token) headers.append('authorization', this.token)
-    if (this.domain) headers.append('aquarium-domain', this.domain)
+    const headers = new Headers();
+    if (this.token) headers.append("authorization", this.token);
+    if (this.domain) headers.append("aquarium-domain", this.domain);
 
     const request: RequestInit = {
       method,
       headers,
-      credentials: 'include'
-    }
+      credentials: "include",
+    };
 
     if (body == null) {
-      headers.append("Content-Type", "application/json; charset=UTF-8")
+      headers.append("Content-Type", "application/json; charset=UTF-8");
     } else {
       if (!(body instanceof FormData)) {
-        headers.append("Content-Type", "application/json; charset=UTF-8")
-        request.body = JSON.stringify(body)
-      } else request.body = body
+        headers.append("Content-Type", "application/json; charset=UTF-8");
+        request.body = JSON.stringify(body);
+      } else request.body = body;
     }
 
     return new Promise((resolve, reject) => {
-      fetch(resource.toString(), request).then(async response => {
+      fetch(resource.toString(), request).then(async (response) => {
         if (response.ok) {
-          const body = await response.json()
-          resolve(body)
+          const body = await response.json();
+          resolve(body);
         } else {
-          let body
+          let body;
           try {
-            body = await response.text()
-            reject(new Error(body))
+            body = await response.text();
+            reject(new Error(body));
             // body = await response.json()
             // reject(new Error(body.error))
           } catch {
-            reject(new Error('Error during fetch'))
+            reject(new Error("Error during fetch"));
           }
         }
-      }).catch(e => {
-        reject(e)
-      })
-    })
+      }).catch((e) => {
+        reject(e);
+      });
+    });
   }
 
   /**
@@ -93,12 +98,15 @@ class Aquarium {
    * @returns
    */
   async signin(email: string, password: string): Promise<{ user: User }> {
-    const me = await this.post<{ user: User, token?: string }>('signin', { email, password })
+    const me = await this.post<{ user: User; token?: string }>("signin", {
+      email,
+      password,
+    });
     if (me.token) {
-      this.token = me.token
-      delete me.token
+      this.token = me.token;
+      delete me.token;
     }
-    return me
+    return me;
   }
 
   /**
@@ -108,12 +116,15 @@ class Aquarium {
    * @returns
    */
   async signinBot(_key: string, secret: string): Promise<{ bot: Bot }> {
-    const bot = await this.post<{ bot: Bot, token?: string }>(`bots/${_key}/signin`, { secret })
+    const bot = await this.post<{ bot: Bot; token?: string }>(
+      `bots/${_key}/signin`,
+      { secret },
+    );
     if (bot.token) {
-      this.token = bot.token
-      delete bot.token
+      this.token = bot.token;
+      delete bot.token;
     }
-    return bot
+    return bot;
   }
 
   /**
@@ -121,7 +132,7 @@ class Aquarium {
    * @returns Aquarium connected user
    */
   me(): Promise<{ user: User }> {
-    return this.get<{ user: User }>('users/me')
+    return this.get<{ user: User }>("users/me");
   }
 
   /**
@@ -132,7 +143,7 @@ class Aquarium {
    * @returns Aquarium response
    */
   post<T>(url: string, body?: body, params?: params): Promise<T> {
-    return this.aquarium<T>('POST', url, params, body)
+    return this.aquarium<T>("POST", url, params, body);
   }
 
   /**
@@ -142,7 +153,7 @@ class Aquarium {
    * @returns Aquarium response
    */
   get<T>(url: string, params?: params): Promise<T> {
-    return this.aquarium<T>('GET', url, params)
+    return this.aquarium<T>("GET", url, params);
   }
 
   /**
@@ -153,7 +164,7 @@ class Aquarium {
    * @returns Aquarium response
    */
   patch<T>(url: string, body?: body, params?: params): Promise<T> {
-    return this.aquarium<T>('PATCH', url, params, body)
+    return this.aquarium<T>("PATCH", url, params, body);
   }
 
   /**
@@ -164,7 +175,7 @@ class Aquarium {
    * @returns Aquarium response
    */
   put<T>(url: string, body?: body, params?: params): Promise<T> {
-    return this.aquarium<T>('PUT', url, params, body)
+    return this.aquarium<T>("PUT", url, params, body);
   }
 
   /**
@@ -175,9 +186,8 @@ class Aquarium {
    * @returns Aquarium response
    */
   delete<T>(url: string, body?: body, params?: params): Promise<T> {
-    return this.aquarium<T>('DELETE', url, params, body)
+    return this.aquarium<T>("DELETE", url, params, body);
   }
 }
 
-export default Aquarium
-
+export default Aquarium;
