@@ -1,0 +1,11 @@
+{
+  "name": "@fatfish-lab/aquarium-ts-api",
+  "version": "0.0.9",
+  "license": "MIT",
+  "exports": "./src/index.ts",
+  "tasks": {
+    "publish:npm": "deno run scripts/npm.ts && cd npm && npm publish",
+    "publish:jsr": "deno publish",
+    "publish": "deno task 'publish:*'"
+  }
+}
