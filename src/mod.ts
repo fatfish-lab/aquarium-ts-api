@@ -1,2 +1,2 @@
 export * from './index.ts'
-export * from './types.d.ts'
+export type * from './types/item.ts'

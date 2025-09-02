@@ -1,4 +1,4 @@
-import type { User, Bot } from './types.d.ts'
+import type { User, Bot } from './types/item.ts'
 type params = {
   // deno-lint-ignore no-explicit-any
   [x: string]: any
