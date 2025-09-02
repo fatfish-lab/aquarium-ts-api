@@ -1,11 +1,6 @@
 import { build, emptyDir } from "https://deno.land/x/dnt@0.37.0/mod.ts";
 import deno from "../deno.json" with { type: "json" }
 
-const newTag = new Deno.Command('git', {
-  args: ['tag', '-a', `${deno.version}`, '-m', `v${deno.version}`]
-})
-newTag.outputSync()
-
 await emptyDir("./npm");
 
 Deno.copyFileSync("LICENSE", "npm/LICENSE")
@@ -16,7 +11,7 @@ await build({
   outDir: "./npm",
   typeCheck: false,
   compilerOptions: {
-    lib: ['DOM']
+    lib: ['DOM', "ESNext"]
   },
   shims: {},
   package: {
