@@ -7,7 +7,7 @@ type body = params | BodyInit;
 /**
  * Aquarium API class to regroup all API low level functions and authentication token
  */
-class Aquarium {
+export class Aquarium {
   /** API version */
   apiVersion: string;
   /** API origin URL */
@@ -193,5 +193,3 @@ class Aquarium {
     return this.aquarium<T>("DELETE", url, params, body);
   }
 }
-
-export default Aquarium;
