@@ -1,11 +1,12 @@
 {
   "name": "@fatfish-lab/aquarium-ts-api",
   "description": "Aquarium API typescript package",
-  "version": "0.0.12",
+  "version": "0.0.13",
   "license": "MIT",
   "exports": "./src/mod.ts",
   "tasks": {
-    "publish:npm": "deno run -A scripts/npm.ts && cd npm && npm publish",
+    "build": "deno run -A scripts/npm.ts",
+    "publish:npm": "deno task build && cd npm && npm publish",
     "publish:jsr": "deno publish",
     "publish": "deno task 'publish:*'",
     "check": "deno check --doc && deno fmt"
