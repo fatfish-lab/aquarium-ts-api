@@ -1,4 +1,5 @@
 import type { Bot, User } from "./types/item.ts";
+
 type params = {
   // deno-lint-ignore no-explicit-any
   [x: string]: any;
@@ -56,7 +57,7 @@ export class Aquarium {
 
     const headers = new Headers();
     if (this.token) headers.append("authorization", this.token);
-    if (this.domain) headers.append("aquarium-domain", this.domain);
+    if (this.domain) headers.append("x-aquarium-domain", this.domain);
 
     const request: RequestInit = {
       method,
@@ -67,7 +68,20 @@ export class Aquarium {
     if (body == null) {
       headers.append("Content-Type", "application/json; charset=UTF-8");
     } else {
-      if (!(body instanceof FormData)) {
+      if (
+        typeof body === "object" &&
+        Object.values(body).some((value) => value instanceof File)
+      ) {
+        const formData = new FormData();
+        Object.keys(body).forEach((key) => {
+          // deno-lint-ignore no-explicit-any
+          const value = (body as any)[key];
+          if (value !== undefined && value !== null) {
+            formData.append(key, value);
+          }
+        });
+        request.body = formData;
+      } else if (!(body instanceof FormData)) {
         headers.append("Content-Type", "application/json; charset=UTF-8");
         request.body = JSON.stringify(body);
       } else request.body = body;

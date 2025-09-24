@@ -4,7 +4,7 @@ export interface ItemData {
   name?: string;
 }
 
-export interface Item<T extends string> {
+export interface Item<T extends string | undefined> {
   _key: string;
   _id: `items/${Item<T>["_key"]}`;
   _rev: string;
@@ -18,7 +18,7 @@ export interface Item<T extends string> {
   history?: ItemHistory<T>[];
 }
 
-export interface ItemHistory<T extends string> extends Item<T> {
+export interface ItemHistory<T extends string | undefined> extends Item<T> {
   [key: string]: unknown;
   originalKey: string;
   message: string;
