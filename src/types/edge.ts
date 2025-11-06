@@ -6,17 +6,17 @@ export interface EdgeData {
   name?: string;
 }
 
-export interface Edge<T extends string | undefined> {
+export interface Edge<T extends string | undefined, P extends boolean | undefined = false> {
   _key: string;
-  _id: `connections/${Edge<T>["_key"]}`;
-  _from: Item<''>["_id"];
-  _to: Item<''>["_id"];
+  _id: `connections/${Edge<T, P>["_key"]}`;
+  _from: Item<undefined>["_id"];
+  _to: Item<undefined>["_id"];
   _rev: string;
   type: T;
   data: EdgeData;
   createdFrom?: string;
-  createdBy: string | Item<"User">;
+  createdBy: P extends true ? Item<"User"> : string;
   createdAt: string;
-  updatedBy: string | Item<"User">;
+  updatedBy: P extends true ? Item<"User"> : string;
   updatedAt: string;
 }

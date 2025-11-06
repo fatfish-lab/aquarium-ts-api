@@ -4,16 +4,16 @@ export interface ItemData {
   name?: string;
 }
 
-export interface Item<T extends string | undefined> {
+export interface Item<T extends string | undefined, P extends boolean | undefined = false> {
   _key: string;
   _id: `items/${Item<T>["_key"]}`;
   _rev: string;
   type: T;
   data: ItemData;
   createdFrom?: string;
-  createdBy: string | Item<"User">;
+  createdBy: P extends true ? Item<"User"> : string;
   createdAt: string;
-  updatedBy: string | Item<"User">;
+  updatedBy: P extends true ? Item<"User"> : string;
   updatedAt: string;
   history?: ItemHistory<T>[];
 }
