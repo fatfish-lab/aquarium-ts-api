@@ -77,7 +77,11 @@ export class Aquarium {
           // deno-lint-ignore no-explicit-any
           const value = (body as any)[key];
           if (value !== undefined && value !== null) {
-            formData.append(key, value);
+            if (value instanceof File) {
+              formData.append(key, value);
+            } else {
+              formData.append(key, JSON.stringify(value));
+            }
           }
         });
         request.body = formData;
