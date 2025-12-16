@@ -9,28 +9,62 @@ type body = params | BodyInit;
  * Aquarium API class to regroup all API low level functions and authentication token
  */
 export class Aquarium {
-  /** API version */
-  apiVersion: string;
-  /** API origin URL */
-  apiUrl: string;
   /** API base URL including the API version */
   url: URL;
   /** API token used to authenticate requests */
   token: string | undefined;
-  /** API Aquarium domain */
-  domain?: string | undefined;
+
+  private _apiUrl: string;
+  private _apiVersion: string;
+  private _domain?: string | undefined;
+
   /**
    * @param {string} url - Your Aquarium Studio url instance with protocol (ex: `https://`) and port if needed
    * @param {string} [token] - Your personal access token or a saved token
    * @param {string} [domain] - Specify the domain used for unauthenticated requests. Mainly for Aquarium Fatfish Lab dev or local Aquarium server without DNS.
    */
   constructor(url: string, token?: string | null, domain?: string | null) {
-    this.apiUrl = url;
-    this.apiVersion = "v1";
-    this.url = new URL(`/${this.apiVersion}/`, this.apiUrl);
+    this._apiUrl = url;
+    this._apiVersion = "v1";
+    this.url = new URL(`/${this._apiVersion}/`, this._apiUrl);
 
-    if (domain) this.domain = domain;
+    if (domain) this._domain = domain;
     if (token) this.token = token;
+  }
+
+  /**
+   * API origin URL
+   */
+  get apiUrl(): string {
+    return this._apiUrl;
+  }
+
+  set apiUrl(value: string) {
+    this._apiUrl = value;
+    this.url = new URL(`/${this._apiVersion}/`, this._apiUrl);
+  }
+
+  /**
+   * API version
+   */
+  get apiVersion(): string {
+    return this._apiVersion;
+  }
+
+  set apiVersion(value: string) {
+    this._apiVersion = value;
+    this.url = new URL(`/${this._apiVersion}/`, this._apiUrl);
+  }
+
+  /**
+   * API Aquarium domain
+   */
+  get domain(): string | undefined {
+    return this._domain;
+  }
+
+  set domain(value: string | undefined) {
+    this._domain = value;
   }
 
   /**
