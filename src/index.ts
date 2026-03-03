@@ -132,11 +132,20 @@ export class Aquarium {
           resolve(body);
         } else {
           let body;
+
+          try {
+            body = await response.json();
+            if (body.error) {
+              reject(new Error(body.error));
+              return;
+            }
+          } catch {
+            // Continue with text body
+          }
+
           try {
             body = await response.text();
             reject(new Error(body));
-            // body = await response.json()
-            // reject(new Error(body.error))
           } catch {
             reject(new Error("Error during fetch"));
           }
