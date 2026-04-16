@@ -4,7 +4,13 @@ type params = {
   // deno-lint-ignore no-explicit-any
   [x: string]: any;
 };
-type body = params | BodyInit;
+type Body = params | BodyInit;
+export type UploadProgress = {
+  loaded: number;
+  total: number;
+  percent: number;
+  lengthComputable: boolean;
+};
 /**
  * Aquarium API class to regroup all API low level functions and authentication token
  */
@@ -72,14 +78,14 @@ export class Aquarium {
    * @param {string} method - Method used for the request
    * @param {string} url - Base URL for the API endpoint (ex: `users/me`)
    * @param {params} [params] - URL search parameters
-   * @param {body} [body] - URL body object
+   * @param {Body} [body] - URL body object
    * @returns Aquarium response
    */
   aquarium<T>(
     method: string,
     url: string,
     params?: params | undefined,
-    body?: body | undefined,
+    body?: Body | undefined,
   ): Promise<T> {
     const resource = new URL(this.url + url);
 
@@ -136,7 +142,7 @@ export class Aquarium {
           try {
             body = await response.json();
             if (body.error) {
-              reject(new Error(body.error));
+              reject({ message: body.error, status: response.status });
               return;
             }
           } catch {
@@ -207,7 +213,7 @@ export class Aquarium {
    * @param {params} [params] - URL search parameters
    * @returns Aquarium response
    */
-  post<T>(url: string, body?: body, params?: params): Promise<T> {
+  post<T>(url: string, body?: Body, params?: params): Promise<T> {
     return this.aquarium<T>("POST", url, params, body);
   }
 
@@ -224,33 +230,161 @@ export class Aquarium {
   /**
    * Send a PATCH request to Aquarium server
    * @param {string} url - Base URL for the API endpoint (ex: `users/me`)
-   * @param {body} [body] - URL body object
+   * @param {Body} [body] - URL body object
    * @param {params} [params] - URL search parameters
    * @returns Aquarium response
    */
-  patch<T>(url: string, body?: body, params?: params): Promise<T> {
+  patch<T>(url: string, body?: Body, params?: params): Promise<T> {
     return this.aquarium<T>("PATCH", url, params, body);
   }
 
   /**
    * Send a PUT request to Aquarium server
    * @param {string} url - Base URL for the API endpoint (ex: `users/me`)
-   * @param {body} [body] - URL body object
+   * @param {Body} [body] - URL body object
    * @param {params} [params] - URL search parameters
    * @returns Aquarium response
    */
-  put<T>(url: string, body?: body, params?: params): Promise<T> {
+  put<T>(url: string, body?: Body, params?: params): Promise<T> {
     return this.aquarium<T>("PUT", url, params, body);
   }
 
   /**
    * Send a DELETE request to Aquarium server
    * @param {string} url - Base URL for the API endpoint (ex: `users/me`)
-   * @param {body} [body] - URL body object
+   * @param {Body} [body] - URL body object
    * @param {params} [params] - URL search parameters
    * @returns Aquarium response
    */
-  delete<T>(url: string, body?: body, params?: params): Promise<T> {
+  delete<T>(url: string, body?: Body, params?: params): Promise<T> {
     return this.aquarium<T>("DELETE", url, params, body);
+  }
+
+  /**
+   * Upload files using XMLHttpRequest to expose upload progress events.
+   * @param {string} url - Base URL for the API endpoint (ex: `files/upload`)
+   * @param {params | FormData} body - Upload payload
+   * @param {(progress: UploadProgress) => void} [onProgress] - Upload progress callback
+   * @param {params} [params] - URL search parameters
+   * @param {AbortSignal} [signal] - Optional abort signal to cancel upload
+   * @returns Aquarium response
+   */
+  upload<T>(
+    url: string,
+    body: params | FormData,
+    onProgress?: (progress: UploadProgress) => void,
+    params?: params,
+    signal?: AbortSignal,
+  ): Promise<T> {
+    const resource = new URL(this.url + url);
+
+    if (params != null) {
+      Object.keys(params).forEach((name) => {
+        resource.searchParams.append(name, params[name]);
+      });
+    }
+
+    let requestBody: FormData;
+    if (body instanceof FormData) {
+      requestBody = body;
+    } else {
+      requestBody = new FormData();
+      Object.keys(body).forEach((key) => {
+        const value = body[key];
+        if (value !== undefined && value !== null) {
+          if (value instanceof File) {
+            requestBody.append(key, value);
+          } else {
+            requestBody.append(key, JSON.stringify(value));
+          }
+        }
+      });
+    }
+
+    return new Promise((resolve, reject) => {
+      const xhr = new XMLHttpRequest();
+      xhr.open("POST", resource.toString());
+      xhr.withCredentials = true;
+
+      if (this.token) xhr.setRequestHeader("authorization", this.token);
+      if (this.domain) xhr.setRequestHeader("x-aquarium-domain", this.domain);
+
+      if (onProgress) {
+        xhr.upload.onprogress = (event) => {
+          const percent = event.lengthComputable && event.total > 0
+            ? (event.loaded / event.total) * 100
+            : 0;
+          onProgress({
+            loaded: event.loaded,
+            total: event.total,
+            percent,
+            lengthComputable: event.lengthComputable,
+          });
+        };
+      }
+
+      const abortHandler = () => {
+        xhr.abort();
+      };
+
+      if (signal) {
+        if (signal.aborted) {
+          reject(new DOMException("Upload aborted", "AbortError"));
+          return;
+        }
+        signal.addEventListener("abort", abortHandler, { once: true });
+      }
+
+      const cleanup = () => {
+        if (signal) {
+          signal.removeEventListener("abort", abortHandler);
+        }
+      };
+
+      xhr.onload = () => {
+        cleanup();
+        const responseType = xhr.getResponseHeader("content-type");
+        const isJson = responseType?.includes("application/json");
+
+        if (xhr.status >= 200 && xhr.status < 300) {
+          try {
+            if (isJson) {
+              resolve(JSON.parse(xhr.responseText));
+            } else {
+              // deno-lint-ignore no-explicit-any
+              resolve(xhr.responseText as any);
+            }
+          } catch {
+            reject(new Error("Error during upload response parsing"));
+          }
+          return;
+        }
+
+        try {
+          if (isJson) {
+            const parsed = JSON.parse(xhr.responseText);
+            if (parsed.error) {
+              reject(new Error(parsed.error));
+              return;
+            }
+          }
+          reject(new Error(xhr.responseText || "Error during upload"));
+        } catch {
+          reject(new Error("Error during upload"));
+        }
+      };
+
+      xhr.onerror = () => {
+        cleanup();
+        reject(new Error("Network error during upload"));
+      };
+
+      xhr.onabort = () => {
+        cleanup();
+        reject(new DOMException("Upload aborted", "AbortError"));
+      };
+
+      xhr.send(requestBody);
+    });
   }
 }
