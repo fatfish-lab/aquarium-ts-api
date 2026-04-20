@@ -19,5 +19,11 @@
     "exclude": [
       "*.md"
     ]
-  }
+  },
+    "compilerOptions": {
+      "lib": [
+        "dom",
+        "deno.ns"
+      ]
+    }
 }

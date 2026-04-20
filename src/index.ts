@@ -300,7 +300,6 @@ export class Aquarium {
         }
       });
     }
-
     return new Promise((resolve, reject) => {
       const xhr = new XMLHttpRequest();
       xhr.open("POST", resource.toString());
@@ -310,7 +309,7 @@ export class Aquarium {
       if (this.domain) xhr.setRequestHeader("x-aquarium-domain", this.domain);
 
       if (onProgress) {
-        xhr.upload.onprogress = (event) => {
+        xhr.upload.onprogress = (event: ProgressEvent) => {
           const percent = event.lengthComputable && event.total > 0
             ? (event.loaded / event.total) * 100
             : 0;
