@@ -24,5 +24,18 @@ export interface ItemHistory<T extends string | undefined> extends Item<T> {
   message: string;
 }
 
-export interface User extends Item<"User"> {}
-export interface Bot extends Item<"Bot"> {}
+export interface User<T extends boolean | undefined = false> extends Item<"User", T> {
+  active: boolean;
+}
+export interface Bot<T extends boolean | undefined = false> extends Item<"Bot", T> {
+  active: boolean;
+}
+export type Account<T extends boolean | undefined = false> = User<T> | Bot<T>
+
+export interface BotAccessToken {
+  [x: string]: string;
+  id: string
+  name: string
+  expireAt: string
+  revision: string
+}
