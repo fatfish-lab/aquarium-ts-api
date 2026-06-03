@@ -1,3 +1,8 @@
+# v0.5.1 - New User & Bot types
+June.03, 2026
+
+- `feat`: User and Bot interfaces now support the native `.active` property. We also implemented the `BotAccessToken` type. <!--1a27be790f225cf6c35aa63cbef328ead80aead3-->
+
 # v0.5.0 - Improved typing
 June.03, 2026
 
