@@ -12,7 +12,7 @@ Aquarium Studio is developed by [Fatfish Lab](https://fatfi.sh)
 
 ```js
 
-import Aquarium from '@fatfish-lab/aquarium-ts-api'
+import { Aquarium } from '@fatfish-lab/aquarium-ts-api'
 
 const aq = new Aquarium('https://your-aquarium-server.com')
 
@@ -28,7 +28,7 @@ await aq.signin(AQ_USER, AQ_PASSWORD)
 
 ### Deno
 
-`import Aquarium from https://github.com/fatfish-lab/aquarium-ts-api/blob/main/index.ts`
+`import { Aquarium } from https://github.com/fatfish-lab/aquarium-ts-api/blob/main/index.ts`
 
 ## Development
 
