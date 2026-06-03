@@ -5,6 +5,8 @@ type params = {
   [x: string]: any;
 };
 type Body = params | BodyInit;
+type Result<T, nullable extends boolean> = nullable extends true ? T | null
+  : T;
 export type UploadProgress = {
   loaded: number;
   total: number;
@@ -81,12 +83,12 @@ export class Aquarium {
    * @param {Body} [body] - URL body object
    * @returns Aquarium response
    */
-  aquarium<T>(
+  aquarium<T, nullable extends boolean = false>(
     method: string,
     url: string,
     params?: params | undefined,
     body?: Body | undefined,
-  ): Promise<T> {
+  ): Promise<Result<T, nullable>> {
     const resource = new URL(this.url + url);
 
     if (params != null) {
@@ -131,9 +133,13 @@ export class Aquarium {
       } else request.body = body;
     }
 
-    return new Promise((resolve, reject) => {
+    return new Promise<Result<T, nullable>>((resolve, reject) => {
       fetch(resource.toString(), request).then(async (response) => {
         if (response.ok) {
+          if (response.status === 204) {
+            resolve(null as Result<T, nullable>);
+            return;
+          }
           const body = await response.json();
           resolve(body);
         } else {
@@ -213,7 +219,7 @@ export class Aquarium {
    * @param {params} [params] - URL search parameters
    * @returns Aquarium response
    */
-  post<T>(url: string, body?: Body, params?: params): Promise<T> {
+  post<T, nullable extends boolean = false>(url: string, body?: Body, params?: params): Promise<Result<T, nullable>> {
     return this.aquarium<T>("POST", url, params, body);
   }
 
@@ -223,7 +229,7 @@ export class Aquarium {
    * @param {params} [params] - URL search parameters
    * @returns Aquarium response
    */
-  get<T>(url: string, params?: params): Promise<T> {
+  get<T, nullable extends boolean = false>(url: string, params?: params): Promise<Result<T, nullable>> {
     return this.aquarium<T>("GET", url, params);
   }
 
@@ -234,7 +240,7 @@ export class Aquarium {
    * @param {params} [params] - URL search parameters
    * @returns Aquarium response
    */
-  patch<T>(url: string, body?: Body, params?: params): Promise<T> {
+  patch<T, nullable extends boolean = false>(url: string, body?: Body, params?: params): Promise<Result<T, nullable>> {
     return this.aquarium<T>("PATCH", url, params, body);
   }
 
@@ -245,7 +251,7 @@ export class Aquarium {
    * @param {params} [params] - URL search parameters
    * @returns Aquarium response
    */
-  put<T>(url: string, body?: Body, params?: params): Promise<T> {
+  put<T, nullable extends boolean = false>(url: string, body?: Body, params?: params): Promise<Result<T, nullable>> {
     return this.aquarium<T>("PUT", url, params, body);
   }
 
@@ -256,7 +262,7 @@ export class Aquarium {
    * @param {params} [params] - URL search parameters
    * @returns Aquarium response
    */
-  delete<T>(url: string, body?: Body, params?: params): Promise<T> {
+  delete<T, nullable extends boolean = false>(url: string, body?: Body, params?: params): Promise<Result<T, nullable>> {
     return this.aquarium<T>("DELETE", url, params, body);
   }
 
@@ -269,13 +275,13 @@ export class Aquarium {
    * @param {AbortSignal} [signal] - Optional abort signal to cancel upload
    * @returns Aquarium response
    */
-  upload<T>(
+  upload<T, nullable extends boolean = false>(
     url: string,
     body: params | FormData,
     onProgress?: (progress: UploadProgress) => void,
     params?: params,
     signal?: AbortSignal,
-  ): Promise<T> {
+  ): Promise<Result<T, nullable>> {
     const resource = new URL(this.url + url);
 
     if (params != null) {
