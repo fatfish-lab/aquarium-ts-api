@@ -1,3 +1,8 @@
+# v0.6.0 - Add new ownership permission
+August.24, 2026
+
+- `feat`: Add the special `*` permission to prevent permission inheritance and the new `o` permission to allow user to own the created item during a append <!--cd322727135cbcce7d3682163935208df3726c64-->
+
 # v0.5.1 - New User & Bot types
 June.03, 2026
 
