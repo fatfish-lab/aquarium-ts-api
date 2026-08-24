@@ -8,6 +8,8 @@ export enum Permission {
   Share = "s",
   Delete = "d",
   ChangePermissions = "g",
+  PreventPermissionInheritance = "*",
+  OwnershipOnAppend = "o"
 }
 
 export enum PermissionPresets {
